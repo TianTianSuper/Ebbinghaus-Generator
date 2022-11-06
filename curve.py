@@ -4,8 +4,9 @@ from datetime import timedelta
 
 
 class RememberList:
-    def __init__(self, vocabulary_size, start_date=None, remember_per_day=3):
+    def __init__(self, vocabulary_size, start_date=None, start_vocab=1,remember_per_day=3):
         self.vocabulary_size = vocabulary_size
+        self.start_vocab = start_vocab
         self.rules = [0,1,2,4,7,15]
         period_length = self.vocabulary_size + self.rules[-1]
         self.records = dict()
@@ -27,9 +28,10 @@ class RememberList:
         return new_dict
 
     def generate(self):
-        all_list_index = np.arange(1, self.vocabulary_size + 1)
-        group_list_index = [all_list_index[i-1:i-1+self.remember_per_day].tolist()\
-                                for i in all_list_index[::self.remember_per_day]]
+        all_list_index = np.arange(self.start_vocab, self.vocabulary_size + 1)
+        all_list_count = np.arange(0, len(all_list_index))
+        group_list_index = [all_list_index[i:i+self.remember_per_day].tolist()\
+                                for i in all_list_count[::self.remember_per_day]]
         new_day = 0
         for group in group_list_index:
             today = self.start_date + timedelta(days=new_day)
@@ -46,5 +48,4 @@ class RememberList:
                     else:
                         self.records[day] = [[], group.copy()]
             new_day += 1
-        print(self.order_dict(self.records))
-      
+        self.records = self.order_dict(self.records)
